@@ -1,9 +1,17 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
 }
+
+// 🔁 Lê o local.properties ANTES do bloco android
+val localProperties = File(rootDir, "local.properties")
+val properties = Properties()
+properties.load(FileInputStream(localProperties))
 
 android {
     namespace = "com.example.routeshare"
@@ -15,6 +23,10 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+
+        manifestPlaceholders["MAPS_API_KEY"] = properties.getProperty("MAPS_API_KEY")
+            ?: throw GradleException("MAPS_API_KEY not found in local.properties")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -59,8 +71,17 @@ dependencies {
     // Navigation
     implementation(libs.navigation.compose)
 
+    // Maps
+    implementation(libs.maps.compose)
+    implementation(libs.maps.sdk)
+    implementation(libs.play.services.maps.v1910)
+    implementation(libs.accompanist.permissions)
+
+
+
     // Icons
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.material.icons.extended)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -77,4 +98,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
 }

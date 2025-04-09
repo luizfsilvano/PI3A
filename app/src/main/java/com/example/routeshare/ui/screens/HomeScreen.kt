@@ -1,117 +1,164 @@
 package com.example.routeshare.ui.screens
 
+import android.Manifest
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.NearMe
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.google.maps.android.compose.*
+import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.accompanist.permissions.*
 
-
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.NearMe
-import androidx.compose.material.icons.filled.ArrowBack
-
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(bottom = 5.dp)
-    ) {
+    val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+
+    LaunchedEffect(Unit) {
+        locationPermissionState.launchPermissionRequest()
+    }
+
+    val hasLocationPermission = locationPermissionState.status.isGranted
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(LatLng(-23.5505, -46.6333), 14f)
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text("Route Share", color = Color.White)
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Button(
+                    onClick = { /* ação de voltar */ },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.height(50.dp)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text("Back")
+                }
+            }
+        }
+    ) { padding ->
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(320.dp)
-                .padding(horizontal = 16.dp, vertical = 24.dp)
-                .background(Color.LightGray, shape = RoundedCornerShape(16.dp))
+                .padding(padding)
+                .fillMaxSize()
         ) {
-            // Background image do mapa (a ser substituído por Maps Compose)
-            // Input de busca
-            Column(modifier = Modifier.fillMaxSize()) {
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(isMyLocationEnabled = hasLocationPermission),
+                uiSettings = MapUiSettings(zoomControlsEnabled = false)
+            )
+
+            // Campo de busca
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+            ) {
                 Row(
                     modifier = Modifier
-                        .height(48.dp)
+                        .height(50.dp)
                         .fillMaxWidth()
-                        .background(Color.White, shape = RoundedCornerShape(12.dp))
-                        .padding(horizontal = 8.dp),
+                        .background(MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(12.dp))
+                        .padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Search, contentDescription = "Search", tint = Color(0xFF3E4D5B))
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White)
                     TextField(
                         value = "",
                         onValueChange = {},
-                        placeholder = { Text("Search or enter address", color = Color(0xFF3E4D5B)) },
+                        placeholder = {
+                            Text("Search or enter address", color = Color.White)
+                        },
                         modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
                         colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            disabledContainerColor = Color.Transparent,
+                            focusedContainerColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent
-                        ),
-                        singleLine = true
+                        )
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.End) {
-                    Column {
-                        IconButton(
-                            onClick = {},
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(Color.White, RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = "Zoom In", tint = Color(0xFF141414))
-                        }
-                        IconButton(
-                            onClick = {},
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(Color.White, RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-                        ) {
-                            Icon(Icons.Default.Remove, contentDescription = "Zoom Out", tint = Color(0xFF141414))
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Botões flutuantes
+            Column(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp),
+                horizontalAlignment = Alignment.End
+            ) {
+                Column {
                     IconButton(
-                        onClick = {},
+                        onClick = {
+                            cameraPositionState.move(CameraUpdateFactory.zoomIn())
+                        },
                         modifier = Modifier
                             .size(40.dp)
-                            .background(Color.White, RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
                     ) {
-                        Icon(Icons.Default.NearMe, contentDescription = "Navigation", tint = Color(0xFF141414))
+                        Icon(Icons.Default.Add, contentDescription = "Zoom In", tint = Color.White)
                     }
+                    IconButton(
+                        onClick = {
+                            cameraPositionState.move(CameraUpdateFactory.zoomOut())
+                        },
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
+                    ) {
+                        Icon(Icons.Default.Remove, contentDescription = "Zoom Out", tint = Color.White)
+                    }
+                }
+                Spacer(modifier = Modifier.height(25.dp))
+                IconButton(
+                    onClick = {
+                        // ação futura: mover para localização atual, se disponível
+                    },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(12.dp))
+                ) {
+                    Icon(Icons.Default.NearMe, contentDescription = "Navigation", tint = Color.White)
                 }
             }
         }
-
-        // Botão "Back"
-        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Button(
-                onClick = {},
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF0F2F5)),
-                modifier = Modifier.height(40.dp)
-            ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color(0xFF141414))
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Back", color = Color(0xFF141414), maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 14.sp)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(5.dp))
     }
 }
-
