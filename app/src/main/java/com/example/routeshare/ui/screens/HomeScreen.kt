@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.NearMe
@@ -56,17 +57,17 @@ fun MapScreen() {
                 horizontalArrangement = Arrangement.Start
             ) {
                 Button(
-                    onClick = { /* ação de voltar */ },
+                    onClick = { /* ação de compartilhar */ },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.height(50.dp)
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.Default.Share, contentDescription = "Compartilhar")
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text("Back")
+                    Text("Compartilhar")
                 }
             }
         }
@@ -150,7 +151,7 @@ fun MapScreen() {
                 Spacer(modifier = Modifier.height(25.dp))
                 IconButton(
                     onClick = {
-                        // ação futura: mover para localização atual, se disponível
+                        // TODO: ação futura: mover para localização atual, se disponível
                     },
                     modifier = Modifier
                         .size(40.dp)
