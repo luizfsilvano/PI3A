@@ -70,6 +70,12 @@ dependencies {
 
     // Navigation
     implementation(libs.navigation.compose)
+    implementation("com.google.maps.android:maps-utils-ktx:3.4.0")
+
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 
     // Maps
     implementation(libs.maps.compose)
